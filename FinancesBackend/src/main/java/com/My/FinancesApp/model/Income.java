@@ -1,25 +1,18 @@
-package model;
+package com.My.FinancesApp.model;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
-enum CategoryExpanse {
-    FOOD,
-    HOUSING,
-    TRANSPORTATION,
-    LEISURE,
-    HEALTH,
-    OTHERS
-}
-
 @Entity
+@Table(name = "incomes")
 @Getter
 @Setter
-@Table( name = "expanses")
-public class Expanse {
+@NoArgsConstructor
+public class Income {
 
     @Id
     @GeneratedValue( strategy = GenerationType.UUID)
@@ -29,6 +22,5 @@ public class Expanse {
     private double value;
     private LocalDate date;
     @Enumerated(EnumType.STRING)
-    private CategoryExpanse category;
-
+    private CategoryIncome category;
 }
