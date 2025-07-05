@@ -11,6 +11,7 @@ import com.My.FinancesApp.repository.ExpanseRepository;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Service
 public class ExpanseService {
@@ -42,4 +43,7 @@ public class ExpanseService {
         return expanseRepository.save(expanse);
     }
 
+    public List<Expanse> getExpanses(String userId) {
+        return expanseRepository.findByUserId(userId);
+    }
 }

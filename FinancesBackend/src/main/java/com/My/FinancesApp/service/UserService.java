@@ -1,63 +1,46 @@
 package com.My.FinancesApp.service;
 
-import com.My.FinancesApp.dto.CreateUserDto;
-import com.My.FinancesApp.dto.LoginUserDto;
-import com.My.FinancesApp.dto.RecoveryJwtTokenDto;
-import com.My.FinancesApp.model.Role;
+import com.My.FinancesApp.dto.UpdateUserDto;
 import com.My.FinancesApp.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import com.My.FinancesApp.repository.UserRepository;
-import com.My.FinancesApp.security.JwtTokenService;
-import com.My.FinancesApp.security.SecurityConfiguration;
-import com.My.FinancesApp.security.UserDetailsImpl;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenService jwtTokenService;
-
-    @Autowired
     private UserRepository userRepository;
 
 
-    @Autowired
-    private SecurityConfiguration securityConfiguration;
-
-    public RecoveryJwtTokenDto authenticationUser (LoginUserDto loginUserDto) {
-        try {
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(loginUserDto.getEmail(), loginUserDto.getPassword());
-
-            Authentication authentication = authenticationManager.authenticate(authToken);
-
-            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
-            String jwt = jwtTokenService.generateToken(userDetails);
-
-            return new RecoveryJwtTokenDto(jwt);
-
-        } catch (Exception ex) {
-            throw new RuntimeException("Falha na autenticação: " + ex.getMessage());
-        }
+    public List<User> getUser() {
+        return userRepository.findAll();
     }
 
-    public void createUser(CreateUserDto createUserDto) {
-        User newUser = User.builder()
-                .email(createUserDto.getEmail())
-                .password(securityConfiguration.passwordEncoder().encode(createUserDto.getPassword()))
-                .roles(List.of(Role.builder().name(createUserDto.getRole()).build()))
+    public void updateUser(UpdateUserDto updateUserDto) {
+        User user = userRepository.findByEmail(updateUserDto.getEmail())
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        User updateUser = User.builder()
+                .id(user.getId())
+                .name(updateUserDto.getName() != null ? updateUserDto.getName() : user.getName())
+                .email(updateUserDto.getEmail() != null ? updateUserDto.getEmail() : user.getEmail())
+                .password(updateUserDto.getPassword() != null ? updateUserDto.getPassword() : user.getPassword())
+                .bornDate(updateUserDto.getBornDate() != null ? updateUserDto.getBornDate() : user.getBornDate())
                 .build();
 
-        userRepository.save(newUser);
+        userRepository.save(updateUser);
+    }
+
+    public void deleteUser(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if(user.isPresent()) {
+            userRepository.deleteById(user.get().getId());
+        } else {
+            throw new RuntimeException("Usuário não encontrado");
+        }
     }
 }

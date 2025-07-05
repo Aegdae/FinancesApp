@@ -9,10 +9,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.My.FinancesApp.repository.IncomeRepository;
 
-import java.time.Instant;
-import java.time.LocalDate;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Service
 public class IncomeService {
@@ -42,5 +42,9 @@ public class IncomeService {
         income.setUser(user);
 
         return incomeRepository.save(income);
+    }
+
+    public List<Income> getIncomes(String userId) {
+        return incomeRepository.findByUserId(userId);
     }
 }
